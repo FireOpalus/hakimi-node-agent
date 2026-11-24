@@ -6,8 +6,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 UV_COMPILE_BYTECODE=1 \
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg ca-certificates && \
     rm -rf /var/lib/apt/lists/*
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev --no-install-project
+COPY pyproject.toml ./
+RUN uv venv /app/.venv && \
+    uv pip install --python /app/.venv/bin/python --no-cache \
+      "httpx>=0.28,<1" \
+      "pillow>=12,<13" \
+      "pydantic-settings>=2.7,<3" \
+      "websockets>=15,<18"
 COPY node_agent ./node_agent
 RUN groupadd --gid 10001 hakimi && useradd --uid 10001 --gid 10001 --no-create-home hakimi && \
     mkdir -p /tmp/node_bili_jobs && \
